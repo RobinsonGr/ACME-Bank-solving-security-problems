@@ -81,7 +81,7 @@ app.post("/auth", function (request, response) {
         response.end();
       }
     );
-  } else {
+  } else { 
     response.send("Please enter Username and Password!");
     response.end();
   }
@@ -167,6 +167,10 @@ app.get("/download", function (request, response) {
 app.post("/download", function (request, response) {
   if (request.session.loggedin) {
     var file_name = request.body.file;
+    
+    const rootDirectory = "history_files\\"
+    const filePath = path.join(process.cwd(),"history_files", file_name);
+    const fileName = path.normalize(filePath)
 
     response.statusCode = 200;
     response.setHeader("Content-Type", "text/html");
@@ -174,8 +178,11 @@ app.post("/download", function (request, response) {
     //using current working directory (cwd) with "path" method,  this way the user can't go out of the scope
     console.log(filePath);
     try {
-      const root_directory = path.join(process.cwd(),"history_files/", file_name);
-      content = fs.readFileSync(root_directory, "utf8");
+      if(fileName.indexOf(rootDirectory) < 0) {
+        return response.end('File wasn\'t found');
+      }
+
+      content = fs.readFileSync(fileName, "utf8");
       response.end(content);
     } catch (err) {
       console.log(err);
